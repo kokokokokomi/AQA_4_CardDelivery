@@ -97,6 +97,15 @@ public class AppCardDeliveryTest {
     }
 
     @Test
+    void shouldNotConfirmRequestIfNotSetCheckbox() {
+        city.setValue("Сыктывкар");
+        name.setValue("Шамиль Газизов");
+        phone.setValue("+79005553535");
+        $$("button").find(exactText("Забронировать")).click();
+        $("[data-test-id=agreement].input_invalid .checkbox__text").shouldHave(exactText("Я соглашаюсь с условиями обработки и использования моих персональных данных"));
+    }
+
+    @Test
     void shouldConfirmRequestWithTwoLetters() {
         city.setValue("Сы");
         $(withText("Сыктывкар")).click();
