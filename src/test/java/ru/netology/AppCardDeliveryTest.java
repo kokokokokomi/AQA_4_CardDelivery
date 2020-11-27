@@ -33,11 +33,13 @@ public class AppCardDeliveryTest {
     }
 
     @Test
-    void shouldConfirmRequestSevenDays() {
+    void shouldConfirmRequestUpToSevenDays() {
         city.setValue("Сыктывкар");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YYYY");
-        LocalDate dt = LocalDate.now();
-        LocalDate value = dt.plus(Period.ofDays(7));
+        //LocalDate local = LocalDate.of(2020, 11, 27);
+        LocalDate local = LocalDate.now();
+        //LocalDate value = local.plusDays(7);
+        LocalDate value = local.plus(Period.ofDays(7));
         date.doubleClick().sendKeys(BACK_SPACE);
         date.setValue(formatter.format(value));
         name.setValue("Шамиль Газизов");
