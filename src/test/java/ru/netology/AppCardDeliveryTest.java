@@ -9,7 +9,6 @@ import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.withText;
-import static org.openqa.selenium.Keys.BACK_SPACE;
 import static com.codeborne.selenide.Selenide.*;
 
 public class AppCardDeliveryTest {
@@ -36,11 +35,9 @@ public class AppCardDeliveryTest {
     void shouldConfirmRequestUpToSevenDays() {
         city.setValue("Сыктывкар");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YYYY");
-        //LocalDate local = LocalDate.of(2020, 11, 27);
         LocalDate local = LocalDate.now();
         //LocalDate value = local.plusDays(7);
         LocalDate value = local.plus(Period.ofDays(7));
-        date.doubleClick().sendKeys(BACK_SPACE);
         date.setValue(formatter.format(value));
         name.setValue("Шамиль Газизов");
         phone.setValue("+79005553535");
