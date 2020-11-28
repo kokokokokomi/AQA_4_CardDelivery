@@ -22,7 +22,7 @@ public class AppCardDeliveryTest {
     void shouldOpenBrowser() { open("http://localhost:9999"); }
 
     @Test
-    void shoulConfirmRequestSkipCalendar() {
+    void shouldConfirmRequestSkipCalendar() {
         city.setValue("Сыктывкар");
         name.setValue("Шамиль Газизов");
         phone.setValue("+79005553535");
