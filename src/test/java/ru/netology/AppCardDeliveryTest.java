@@ -8,110 +8,109 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.*;
+import static org.openqa.selenium.Keys.BACK_SPACE;
 
 public class AppCardDeliveryTest {
-    private SelenideElement city = $("[data-test-id=city] input");
+    private SelenideElement cityField = $("[data-test-id=city] input");
     private SelenideElement date = $("[data-test-id=date] input");
-    private SelenideElement name = $("[data-test-id=name] input");
-    private SelenideElement phone = $("[data-test-id=phone] input");
+    private SelenideElement personName = $("[data-test-id=name] input");
+    private SelenideElement phoneNumber = $("[data-test-id=phone] input");
     private SelenideElement agreement = $("[data-test-id=agreement]");
+    private SelenideElement bookingButton = $$("button").find(exactText("Забронировать"));
+    private SelenideElement successMessage = $(withText("Успешно!"));
+    private SelenideElement rejectPhoneNumberMessage = $(byText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
+    private SelenideElement rejectCityValueMessage = $(byText("Доставка в выбранный город недоступна"));
 
     @BeforeEach
     void shouldOpenBrowser() { open("http://localhost:9999"); }
 
     @Test
     void shouldConfirmRequestSkipCalendar() {
-        city.setValue("Сыктывкар");
-        name.setValue("Шамиль Газизов");
-        phone.setValue("+79005553535");
+        cityField.setValue("Сыктывкар");
+        personName.setValue("Шамиль Газизов");
+        phoneNumber.setValue("+79005553535");
         agreement.click();
-        $$("button").find(exactText("Забронировать")).click();
-        $(withText("Успешно")).waitUntil(visible, 15000);
+        bookingButton.click();
+        successMessage.waitUntil(visible, 15000);
+        //$("[data-test-id=notification] .notification__content").shouldHave(text("Встреча успешно забронирована на "));
+        //$(withText("Успешно! Встреча успешно забронирована на " + date.getValue())).waitUntil(visible, 15000);
+        //$(withText("Успешно! " + "Встреча успешно забронирована на ")).waitUntil(visible, 15000);
     }
 
     @Test
     void shouldConfirmRequestUpToSevenDays() {
-        city.setValue("Сыктывкар");
+        cityField.setValue("Сы");
+        $(withText("Сыктывкар")).click();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YYYY");
         LocalDate local = LocalDate.now();
-        //LocalDate value = local.plusDays(7);
         LocalDate value = local.plus(Period.ofDays(7));
+        date.doubleClick().sendKeys(BACK_SPACE);
         date.setValue(formatter.format(value));
-        name.setValue("Шамиль Газизов");
-        phone.setValue("+79005553535");
+        personName.setValue("Шамиль Газизов");
+        phoneNumber.setValue("+79005553535");
         agreement.click();
-        $$("button").find(exactText("Забронировать")).click();
-        $(withText("Успешно")).waitUntil(visible, 15000);
+        bookingButton.click();
+        successMessage.waitUntil(visible, 15000);
     }
 
     @Test
     void shouldNotConfirmRequestIncorrectNumber() {
-        city.setValue("Уфа");
-        name.setValue("Шамиль Газизов");
-        phone.setValue("7-900-555-35-35");
+        cityField.setValue("Уфа");
+        personName.setValue("Шамиль Газизов");
+        phoneNumber.setValue("7-900-555-35-35");
         agreement.click();
-        $$("button").find(exactText("Забронировать")).click();
-        $(withText("Телефон указан неверно.")).waitUntil(visible, 5000);
+        bookingButton.click();
+        rejectPhoneNumberMessage.waitUntil(visible, 5000);
     }
 
     @Test
     void shouldNotConfirmRequestIncorrectCityLatinLetters() {
-        city.setValue("Helsinki");
-        name.setValue("Шамиль Газизов");
-        phone.setValue("+79005553535");
+        cityField.setValue("Helsinki");
+        personName.setValue("Шамиль Газизов");
+        phoneNumber.setValue("+79005553535");
         agreement.click();
-        $$("button").find(exactText("Забронировать")).click();
-        $(withText("Доставка в выбранный город недоступна")).waitUntil(visible, 5000);
+        bookingButton.click();
+        rejectCityValueMessage.waitUntil(visible, 5000);
     }
 
     @Test
     void shouldNotConfirmRequestIncorrectCity() {
-        city.setValue("Хельсинки");
-        name.setValue("Шамиль Газизов");
-        phone.setValue("+79005553535");
+        cityField.setValue("Хельсинки");
+        personName.setValue("Шамиль Газизов");
+        phoneNumber.setValue("+79005553535");
         agreement.click();
-        $$("button").find(exactText("Забронировать")).click();
-        $(withText("Доставка в выбранный город недоступна")).waitUntil(visible, 5000);
+        bookingButton.click();
+        rejectCityValueMessage.waitUntil(visible, 5000);
     }
 
     @Test
     void shouldNotConfirmRequestEmptyFieldName() {
-        city.setValue("Сыктывкар");
-        phone.setValue("+79005553535");
+        cityField.setValue("Сыктывкар");
+        phoneNumber.setValue("+79005553535");
         agreement.click();
-        $$("button").find(exactText("Забронировать")).click();
+        bookingButton.click();
         $(withText("Поле обязательно для заполнения")).waitUntil(visible, 5000);
     }
 
     @Test
     void shouldNotConfirmRequestIncorrectName() {
-        city.setValue("Сыктывкар");
-        name.setValue("Shamil Gazizov");
-        phone.setValue("+79005553535");
+        cityField.setValue("Сыктывкар");
+        personName.setValue("Shamil Gazizov");
+        phoneNumber.setValue("+79005553535");
         agreement.click();
-        $$("button").find(exactText("Забронировать")).click();
+        bookingButton.click();
         $(withText("Имя и Фамилия указаные неверно")).waitUntil(visible, 5000);
     }
 
     @Test
     void shouldNotConfirmRequestIfNotSetCheckbox() {
-        city.setValue("Сыктывкар");
-        name.setValue("Шамиль Газизов");
-        phone.setValue("+79005553535");
-        $$("button").find(exactText("Забронировать")).click();
+        cityField.setValue("Сыктывкар");
+        personName.setValue("Шамиль Газизов");
+        phoneNumber.setValue("+79005553535");
+        bookingButton.click();
         $("[data-test-id=agreement].input_invalid .checkbox__text").shouldHave(exactText("Я соглашаюсь с условиями обработки и использования моих персональных данных"));
-    }
-
-    @Test
-    void shouldConfirmRequestWithTwoLetters() {
-        city.setValue("Сы");
-        $(withText("Сыктывкар")).click();
-        name.setValue("Шамиль Газизов");
-        phone.setValue("+79005553535");
-        agreement.click();
-        $$("button").find(exactText("Забронировать")).click();
-        $(withText("Успешно")).waitUntil(visible, 15000);
     }
 }
