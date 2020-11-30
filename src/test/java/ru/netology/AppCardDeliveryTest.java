@@ -1,5 +1,6 @@
 package ru.netology;
 
+import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,9 @@ public class AppCardDeliveryTest {
     private SelenideElement successMessage = $(withText("Успешно!"));
     private SelenideElement rejectPhoneNumberMessage = $(byText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
     private SelenideElement rejectCityValueMessage = $(byText("Доставка в выбранный город недоступна"));
+    private SelenideElement notificationContent = $("[data-test-id=notification] .notification__content");
+
+    String dateMeeting = LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("dd.MM.YYYY"));
 
     @BeforeEach
     void shouldOpenBrowser() { open("http://localhost:9999"); }
@@ -35,25 +39,34 @@ public class AppCardDeliveryTest {
         agreement.click();
         bookingButton.click();
         successMessage.waitUntil(visible, 15000);
-        //$("[data-test-id=notification] .notification__content").shouldHave(text("Встреча успешно забронирована на "));
-        //$(withText("Успешно! Встреча успешно забронирована на " + date.getValue())).waitUntil(visible, 15000);
-        //$(withText("Успешно! " + "Встреча успешно забронирована на ")).waitUntil(visible, 15000);
     }
 
     @Test
     void shouldConfirmRequestUpToSevenDays() {
-        cityField.setValue("Сы");
-        $(withText("Сыктывкар")).click();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YYYY");
-        LocalDate local = LocalDate.now();
-        LocalDate value = local.plus(Period.ofDays(7));
+        cityField.setValue("Сыктывкар");
         date.doubleClick().sendKeys(BACK_SPACE);
-        date.setValue(formatter.format(value));
+        date.setValue(dateMeeting);
         personName.setValue("Шамиль Газизов");
         phoneNumber.setValue("+79005553535");
         agreement.click();
         bookingButton.click();
         successMessage.waitUntil(visible, 15000);
+        notificationContent.shouldHave(text("Встреча успешно забронирована на " + dateMeeting));
+    }
+
+    @Test
+    void shouldConfirmRequestNextMonthWithCalendar() {
+        cityField.setValue("Сы");
+        $(withText("Сыктывкар")).click();
+        date.click();
+        $(".calendar__arrow_direction_right[data-step='1']").click();
+        $$("td.calendar__day").find(text("1")).click();
+        personName.setValue("Шамиль Газизов");
+        phoneNumber.setValue("+79005553535");
+        agreement.click();
+        bookingButton.click();
+        successMessage.waitUntil(visible, 15000);
+        notificationContent.shouldHave(text("Встреча успешно забронирована на " + date.getValue()));
     }
 
     @Test
