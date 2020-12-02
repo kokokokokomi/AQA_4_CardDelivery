@@ -4,9 +4,15 @@ import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+
+import javax.swing.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byText;
@@ -25,8 +31,11 @@ public class AppCardDeliveryTest {
     private SelenideElement rejectPhoneNumberMessage = $(byText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
     private SelenideElement rejectCityValueMessage = $(byText("Доставка в выбранный город недоступна"));
     private SelenideElement notificationContent = $("[data-test-id=notification] .notification__content");
+    private SelenideElement calendarSeekNextMonth = $(".calendar__arrow_direction_right[data-step='1']");
+    private SelenideElement calendarSeekProperDay = $$("td.calendar__day").find(text("11"));
 
     String dateMeeting = LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("dd.MM.YYYY"));
+    String dateMeetingForCalendar = LocalDate.ofYearDay(2021, 11).format(DateTimeFormatter.ofPattern("dd.MM.YYYY"));
 
     @BeforeEach
     void shouldOpenBrowser() { open("http://localhost:9999"); }
@@ -59,14 +68,14 @@ public class AppCardDeliveryTest {
         cityField.setValue("Сы");
         $(withText("Сыктывкар")).click();
         date.click();
-        $(".calendar__arrow_direction_right[data-step='1']").click();
-        $$("td.calendar__day").find(text("1")).click();
+        calendarSeekNextMonth.click();
+        calendarSeekProperDay.click();
         personName.setValue("Шамиль Газизов");
         phoneNumber.setValue("+79005553535");
         agreement.click();
         bookingButton.click();
         successMessage.waitUntil(visible, 15000);
-        notificationContent.shouldHave(text("Встреча успешно забронирована на " + date.getValue()));
+        notificationContent.shouldHave(text("Встреча успешно забронирована на " + dateMeetingForCalendar));
     }
 
     @Test
