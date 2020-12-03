@@ -1,9 +1,11 @@
 package ru.netology;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.openqa.selenium.support.pagefactory.ByAll;
 
 import javax.swing.*;
 import java.text.ParseException;
@@ -36,6 +38,7 @@ public class AppCardDeliveryTest {
 
     String dateMeeting = LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("dd.MM.YYYY"));
     String dateMeetingForCalendar = LocalDate.ofYearDay(2021, 11).format(DateTimeFormatter.ofPattern("dd.MM.YYYY"));
+    //String dateMeetingForCalendar = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ofPattern("dd.MM.YYYY"));
 
     @BeforeEach
     void shouldOpenBrowser() { open("http://localhost:9999"); }
