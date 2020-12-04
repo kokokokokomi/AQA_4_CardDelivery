@@ -1,6 +1,7 @@
 package ru.netology;
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.SelenideElement;
 import org.junit.jupiter.api.Test;
@@ -34,11 +35,7 @@ public class AppCardDeliveryTest {
     private SelenideElement rejectCityValueMessage = $(byText("Доставка в выбранный город недоступна"));
     private SelenideElement notificationContent = $("[data-test-id=notification] .notification__content");
     private SelenideElement calendarSeekNextMonth = $(".calendar__arrow_direction_right[data-step='1']");
-    private SelenideElement calendarSeekProperDay = $$("td.calendar__day").find(text("11"));
-
-    String dateMeeting = LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("dd.MM.YYYY"));
-    String dateMeetingForCalendar = LocalDate.ofYearDay(2021, 11).format(DateTimeFormatter.ofPattern("dd.MM.YYYY"));
-    //String dateMeetingForCalendar = LocalDate.now().plusMonths(1).format(DateTimeFormatter.ofPattern("dd.MM.YYYY"));
+    private ElementsCollection calendarDays = $$("td.calendar__day");
 
     @BeforeEach
     void shouldOpenBrowser() { open("http://localhost:9999"); }
@@ -55,6 +52,7 @@ public class AppCardDeliveryTest {
 
     @Test
     void shouldConfirmRequestUpToSevenDays() {
+        String dateMeeting = LocalDate.now().plusDays(7).format(DateTimeFormatter.ofPattern("dd.MM.YYYY"));
         cityField.setValue("Сыктывкар");
         date.doubleClick().sendKeys(BACK_SPACE);
         date.setValue(dateMeeting);
@@ -70,15 +68,21 @@ public class AppCardDeliveryTest {
     void shouldConfirmRequestNextMonthWithCalendar() {
         cityField.setValue("Сы");
         $(withText("Сыктывкар")).click();
+        LocalDate defaultCalendarDay = LocalDate.now().plusDays(3);
+        String seekingDefaultDay = String.valueOf(defaultCalendarDay.getDayOfMonth());
+        LocalDate meetingDay = LocalDate.now().plusDays(30);
+        String seekingDay = String.valueOf(meetingDay.getDayOfMonth());
+        date.click();
+        calendarDays.find(text(seekingDefaultDay)).click();
         date.click();
         calendarSeekNextMonth.click();
-        calendarSeekProperDay.click();
+        calendarDays.find(text(seekingDay)).click();
         personName.setValue("Шамиль Газизов");
         phoneNumber.setValue("+79005553535");
         agreement.click();
         bookingButton.click();
         successMessage.waitUntil(visible, 15000);
-        notificationContent.shouldHave(text("Встреча успешно забронирована на " + dateMeetingForCalendar));
+        notificationContent.shouldHave(text("Встреча успешно забронирована на " + meetingDay.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))));
     }
 
     @Test
