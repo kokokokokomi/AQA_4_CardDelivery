@@ -73,9 +73,11 @@ public class AppCardDeliveryTest {
         LocalDate meetingDay = LocalDate.now().plusDays(30);
         String seekingDay = String.valueOf(meetingDay.getDayOfMonth());
         date.click();
-        calendarDays.find(text(seekingDefaultDay)).click();
-        date.click();
-        calendarSeekNextMonth.click();
+        calendarDays.find(text(seekingDefaultDay));
+        if ((meetingDay.getYear() > defaultCalendarDay.getYear()) |
+                (meetingDay.getMonthValue() > defaultCalendarDay.getMonthValue())) {
+            calendarSeekNextMonth.click();
+        }
         calendarDays.find(text(seekingDay)).click();
         personName.setValue("Шамиль Газизов");
         phoneNumber.setValue("+79005553535");
